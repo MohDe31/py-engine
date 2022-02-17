@@ -1,13 +1,16 @@
 import glfw
+
 from typing import Any
 from OpenGL.GL import *
 
-
-from core.shader import Shader
-from core.camera import Camera
-
 import numpy as np
 import glm
+
+import core.components.camera
+import core.components.transform
+import core.renderer
+import core.shader
+import core.scene
 
 
 class Application:
@@ -15,9 +18,9 @@ class Application:
     WIDTH  = 1000
     HEIGHT = 600
 
-    m_Program: Shader
+    m_Program: core.shader.Shader
     m_Window: Any
-    m_Camera: Camera
+    m_ActiveScene: core.scene.Scene
 
     def __init__(self, title="Window") -> None:
         if not glfw.init():
@@ -42,13 +45,20 @@ class Application:
 
         glfw.set_cursor_pos_callback(self.m_Window, self.mouseMove)
 
-        self.m_Program = Shader('res/basic.vert', 'res/basic.frag')
+        self.m_Program = core.shader.Shader('res/basic.vert', 'res/basic.frag')
         self.m_Program.use()
 
         self.createBuffer()
 
-        # TODO REMOVE
-        self.m_Camera = Camera(*([0]*6), 45.0, self.WIDTH / self.HEIGHT)
+
+        # TODO Pack this stuff
+        self.m_ActiveScene = core.scene.Scene()
+        camera_entity = self.m_ActiveScene.makeEntity()
+        tr_ = camera_entity.addComponent(core.components.transform.Transform, *([0]*6))
+        camera_entity.addComponent(core.components.camera.Camera, 45.0, self.WIDTH / self.HEIGHT)
+
+        tr_.setPosition(0,   0, 5)
+        tr_.setRotation(0, -90, 0)
 
         self.deltaTime = 0
         self.lastFrame = 0
@@ -65,7 +75,7 @@ class Application:
     def mouseMove(self, window, x, y):
         model = glm.mat4(1.0)
         model = glm.rotate(model, glm.radians(x), glm.vec3(0.0, 1.0, 0.0))
-        self.m_Program.setMat4("model", np.matrix(model).T)
+        self.m_Program.setMat4("model", model)
 
 
     def createBuffer(self):
@@ -119,12 +129,9 @@ class Application:
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-            self.m_Program.use()
-
-            self.m_Program.setMat4("projection", self.m_Camera.getProjectionMat())
-            self.m_Program.setMat4("view", self.m_Camera.getViewMat())
-
             glDrawElements(GL_TRIANGLES, 6*6, GL_UNSIGNED_INT, None)
+
+            core.renderer.Renderer.render(self.m_ActiveScene, self.m_Program)
             
             glfw.poll_events()
             glfw.swap_buffers(self.m_Window)

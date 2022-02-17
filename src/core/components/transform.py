@@ -1,12 +1,18 @@
 from math import cos, sin
+
+import core.components.component
+import core.entity
+
 import glm
 
 
-class Transform:
+class Transform(core.components.component.Component):
 
     WORLD_UP = glm.vec3(0.0, 1.0, 0.0)
 
-    def __init__(self, x: float, y: float, z: float, pitch: float, yaw: float, roll: float) -> None:
+    def __init__(self, entity: core.entity.Entity, x: float, y: float, z: float, pitch: float, yaw: float, roll: float) -> None:
+        super().__init__(entity)
+
         self.m_Position = glm.vec3(x, y, z)
         self.m_Rotation = glm.vec3(pitch, yaw, roll)
 

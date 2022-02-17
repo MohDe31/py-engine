@@ -1,5 +1,5 @@
-from core.application import Application
-
+import core.application
 
 if __name__ == "__main__":
-    (Application()).run()
+
+    (core.application.Application()).run()

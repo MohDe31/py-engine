@@ -66,4 +66,4 @@ class Shader:
         glUniform1f(glGetUniformLocation(self.ID, name), value)
 
     def setMat4(self, name: str, value: Any):
-        glUniformMatrix4fv(glGetUniformLocation(self.ID, name), 1, GL_FALSE, value)
+        glUniformMatrix4fv(glGetUniformLocation(self.ID, name), 1, GL_FALSE, np.matrix(value).T)
