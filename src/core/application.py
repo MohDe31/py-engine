@@ -63,7 +63,8 @@ class Application:
         self.deltaTime = 0
         self.lastFrame = 0
 
-        self.createBuffer()
+        for i in range(2000):
+            self.createBuffer()
 
     def onWindowSizeChange(self, window, w, h):
         glViewport(0, 0, w, h)
@@ -84,7 +85,7 @@ class Application:
     def createBuffer(self):
         cube = self.m_ActiveScene.makeEntity()
         mesh_: core.components.mesh.Mesh = cube.addComponent(core.components.mesh.Mesh)
-        cube.addComponent(core.components.transform.Transform, 0, 1, 0, 0, 1, 1)
+        cube.addComponent(core.components.transform.Transform, 0, np.random.random()*2-1, 0, 0, 1, 1)
         mesh_.m_Triangles = np.array([ 0, 1, 2, 2, 3, 0,
                                        4, 5, 6, 6, 7, 4,
                                        4, 5, 1, 1, 0, 4,
