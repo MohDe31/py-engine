@@ -63,14 +63,24 @@ class Application:
         self.deltaTime = 0
         self.lastFrame = 0
 
-        for i in range(2000):
+        for i in range(500):
             self.createBuffer()
 
     def onWindowSizeChange(self, window, w, h):
         glViewport(0, 0, w, h)
 
-    def processInput(self, key, x, y):
-        pass
+    def processInput(self, window):
+
+        objs = self.m_ActiveScene.m_Registry.getAllOfTypes(core.components.camera.Camera, core.components.transform.Transform)
+        
+        for entity in objs:
+            tr: core.components.transform.Transform = objs[entity][core.components.transform.Transform]
+            if glfw.get_key(window, glfw.KEY_SPACE):
+                tr.setPosition(*(tr.m_Position + glm.vec3(0,0,1)))
+            if glfw.get_key(window, glfw.KEY_LEFT_CONTROL):
+                tr.setPosition(*(tr.m_Position + glm.vec3(0,0,-1)))
+            
+            break
 
     def processMouse(self, button, state, x, y):
         pass
@@ -124,6 +134,8 @@ class Application:
             glfw.set_window_title(self.m_Window, str(1.0 / self.deltaTime))
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+            self.processInput(self.m_Window)
 
             core.renderer.Renderer.render(self.m_ActiveScene, self.m_Program)
             

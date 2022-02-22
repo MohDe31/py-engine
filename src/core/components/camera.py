@@ -20,5 +20,5 @@ class Camera(core.components.component.Component):
         #return glm.lookAt(self.m_Transform.m_Position, self.m_Transform.m_Position + self.m_Transform.front, self.m_Transform.up)
         __tr = self.m_Entity.getComponent(core.components.transform.Transform)
         assert __tr != None, "Transform doesn't exist"
-        
+        # print(__tr.m_Position)
         return glm.lookAt(__tr.m_Position, __tr.m_Position + __tr.front, __tr.up)
