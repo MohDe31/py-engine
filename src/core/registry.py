@@ -48,6 +48,18 @@ class Registry:
         return None
 
 
+    def getAllOfTypes(self, *components: List[type[core.components.component.Component]]):
+        res = {}
+
+        for entity in self.m_Indices:
+            index = self.m_Indices[entity]
+            __comp = [*filter(lambda x:type(x) in components, self.m_Components[index]),]
+
+            if len(__comp) and len(__comp) == len(components):
+                __comp = {type(c):c for c in __comp}
+                res[entity] = __comp
+
+        return res
 
     def getAllOfType(self, component: type[core.components.component.Component]):
         res = {}

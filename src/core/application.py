@@ -6,8 +6,9 @@ from OpenGL.GL import *
 import numpy as np
 import glm
 
-import core.components.camera
 import core.components.transform
+import core.components.camera
+import core.components.mesh
 import core.renderer
 import core.shader
 import core.scene
@@ -48,7 +49,6 @@ class Application:
         self.m_Program = core.shader.Shader('res/basic.vert', 'res/basic.frag')
         self.m_Program.use()
 
-        self.createBuffer()
 
 
         # TODO Pack this stuff
@@ -63,6 +63,8 @@ class Application:
         self.deltaTime = 0
         self.lastFrame = 0
 
+        self.createBuffer()
+
     def onWindowSizeChange(self, window, w, h):
         glViewport(0, 0, w, h)
 
@@ -73,49 +75,42 @@ class Application:
         pass
 
     def mouseMove(self, window, x, y):
-        model = glm.mat4(1.0)
-        model = glm.rotate(model, glm.radians(x), glm.vec3(0.0, 1.0, 0.0))
-        self.m_Program.setMat4("model", model)
+        pass
+        # model = glm.mat4(1.0)
+        # model = glm.rotate(model, glm.radians(x), glm.vec3(0.0, 1.0, 0.0))
+        # self.m_Program.setMat4("model", model)
 
 
     def createBuffer(self):
-        vertices = [-0.5, -0.5, 0.5, 1.0, 0.0, 0.0,
-                    0.5, -0.5, 0.5, 0.0, 1.0, 0.0,
-                    0.5,  0.5, 0.5, 0.0, 0.0, 1.0,
-                    -0.5,  0.5, 0.5, 1.0, 1.0, 1.0,
+        cube = self.m_ActiveScene.makeEntity()
+        mesh_: core.components.mesh.Mesh = cube.addComponent(core.components.mesh.Mesh)
+        cube.addComponent(core.components.transform.Transform, 0, 1, 0, 0, 1, 1)
+        mesh_.m_Triangles = np.array([ 0, 1, 2, 2, 3, 0,
+                                       4, 5, 6, 6, 7, 4,
+                                       4, 5, 1, 1, 0, 4,
+                                       6, 7, 3, 3, 2, 6,
+                                       5, 6, 2, 2, 1, 5,
+                                       7, 4, 0, 0, 3, 7], dtype=np.uint32)
 
-                    -0.5, -0.5, -0.5, 1.0, 0.0, 0.0,
-                    0.5, -0.5, -0.5, 0.0, 1.0, 0.0,
-                    0.5,  0.5, -0.5, 0.0, 0.0, 1.0,
-                    -0.5,  0.5, -0.5, 1.0, 1.0, 1.0]
+        mesh_.m_Vertices = np.array([-0.5, -0.5, 0.5,
+                                     0.5, -0.5, 0.5, 
+                                     0.5,  0.5, 0.5, 
+                                     -0.5,  0.5, 0.5, 
+                                     -0.5, -0.5, -0.5, 
+                                     0.5, -0.5, -0.5, 
+                                     0.5,  0.5, -0.5, 
+                                     -0.5,  0.5, -0.5], dtype=np.float32)
 
-        indices = [ 0, 1, 2, 2, 3, 0,
-                    4, 5, 6, 6, 7, 4,
-                    4, 5, 1, 1, 0, 4,
-                    6, 7, 3, 3, 2, 6,
-                    5, 6, 2, 2, 1, 5,
-                    7, 4, 0, 0, 3, 7]
+        mesh_.m_Colors = np.array([1.0, 0.0, 0.0,
+                                   0.0, 1.0, 0.0,
+                                   0.0, 0.0, 1.0,
+                                   1.0, 1.0, 1.0,
+                                   1.0, 0.0, 0.0,
+                                   0.0, 1.0, 0.0,
+                                   0.0, 0.0, 1.0,
+                                   1.0, 1.0, 1.0], dtype=np.float32)
 
-        vertices = np.array(vertices, dtype=np.float32)
-        indices = np.array(indices, dtype=np.uint32)
-
-        VBO = glGenBuffers(1)
-        EBO = glGenBuffers(1)
-        VAO = glGenVertexArrays(1)
-
-        glBindVertexArray(VAO)
-
-        glBindBuffer(GL_ARRAY_BUFFER, VBO)
-        glBufferData(GL_ARRAY_BUFFER, vertices.nbytes, vertices, GL_STATIC_DRAW)
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO)
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.nbytes, indices, GL_STATIC_DRAW)
-
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * 4, None)
-        glEnableVertexAttribArray(0)
-
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 6 * 4, ctypes.c_void_p(3 * 4))
-        glEnableVertexAttribArray(1)
+        mesh_.buildMesh()
 
 
     def run(self) -> None:
@@ -128,8 +123,6 @@ class Application:
             glfw.set_window_title(self.m_Window, str(1.0 / self.deltaTime))
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
-            glDrawElements(GL_TRIANGLES, 6*6, GL_UNSIGNED_INT, None)
 
             core.renderer.Renderer.render(self.m_ActiveScene, self.m_Program)
             
