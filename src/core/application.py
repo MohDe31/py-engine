@@ -3,15 +3,13 @@ import glfw
 from typing import Any
 from OpenGL.GL import *
 
-import numpy as np
-import glm
-
 import core.components.transform
 import core.components.camera
 import core.components.mesh
 import core.renderer
 import core.shader
 import core.scene
+import core.time
 
 
 class Application:
@@ -20,14 +18,14 @@ class Application:
     HEIGHT = 600
 
     lastFrame: float = 0
-    deltaTime: float = 0
 
     onMouseMove  = lambda _, w, x, y:None
     onMouseClick = lambda _, w, b, s, x, y:None
+    processInputFunc = lambda _, w, s: None
 
+    m_ActiveScene: core.scene.Scene
     m_Program: core.shader.Shader
     m_Window: Any
-    m_ActiveScene: core.scene.Scene
 
     def __init__(self, title="Window", init = lambda:None) -> None:
         if not glfw.init():
@@ -61,17 +59,10 @@ class Application:
         glViewport(0, 0, w, h)
 
     def processInput(self, window):
+        self.processInputFunc(window, self.m_ActiveScene)
 
-        objs = self.m_ActiveScene.m_Registry.getAllOfTypes(core.components.camera.Camera, core.components.transform.Transform)
-        
-        for entity in objs:
-            tr: core.components.transform.Transform = objs[entity][core.components.transform.Transform]
-            if glfw.get_key(window, glfw.KEY_SPACE):
-                tr.setPosition(*(tr.m_Position + glm.vec3(0,0,1)))
-            if glfw.get_key(window, glfw.KEY_LEFT_CONTROL):
-                tr.setPosition(*(tr.m_Position + glm.vec3(0,0,-1)))
-            
-            break
+    def setProcessInputFunc(self, __func):
+        self.processInputFunc = __func
 
     def setOnMouseMove(self, __func):
         self.onMouseMove = __func
@@ -84,56 +75,21 @@ class Application:
 
     def mouseMove(self, window, x, y):
         self.onMouseMove(window, x, y)
-        # model = glm.mat4(1.0)
-        # model = glm.rotate(model, glm.radians(x), glm.vec3(0.0, 1.0, 0.0))
-        # self.m_Program.setMat4("model", model)
 
 
-    def createBuffer(self):
-        cube = self.m_ActiveScene.makeEntity()
-        mesh_: core.components.mesh.Mesh = cube.addComponent(core.components.mesh.Mesh)
-        cube.addComponent(core.components.transform.Transform, 0, np.random.random()*2-1, 0, 0, 1, 1)
-        mesh_.m_Triangles = np.array([ 0, 1, 2, 2, 3, 0,
-                                       4, 5, 6, 6, 7, 4,
-                                       4, 5, 1, 1, 0, 4,
-                                       6, 7, 3, 3, 2, 6,
-                                       5, 6, 2, 2, 1, 5,
-                                       7, 4, 0, 0, 3, 7], dtype=np.uint32)
-
-        mesh_.m_Vertices = np.array([-0.5, -0.5, 0.5,
-                                     0.5, -0.5, 0.5, 
-                                     0.5,  0.5, 0.5, 
-                                     -0.5,  0.5, 0.5, 
-                                     -0.5, -0.5, -0.5, 
-                                     0.5, -0.5, -0.5, 
-                                     0.5,  0.5, -0.5, 
-                                     -0.5,  0.5, -0.5], dtype=np.float32)
-
-        mesh_.m_Colors = np.array([1.0, 0.0, 0.0,
-                                   0.0, 1.0, 0.0,
-                                   0.0, 0.0, 1.0,
-                                   1.0, 1.0, 1.0,
-                                   1.0, 0.0, 0.0,
-                                   0.0, 1.0, 0.0,
-                                   0.0, 0.0, 1.0,
-                                   1.0, 1.0, 1.0], dtype=np.float32)
-
-        mesh_.buildMesh()
-
-
-    def run(self, update) -> None:
+    def run(self, update = lambda:None) -> None:
 
         while not glfw.window_should_close(self.m_Window):
             currentFrame = glfw.get_time()
-            self.deltaTime = currentFrame - self.lastFrame
+            core.time.Time.DELTA_TIME = currentFrame - self.lastFrame
             self.lastFrame = currentFrame
 
-            glfw.set_window_title(self.m_Window, str(1.0 / self.deltaTime))
+            glfw.set_window_title(self.m_Window, str(1.0 / core.time.Time.DELTA_TIME))
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
 
-            update(self.deltaTime)
+            update()
 
             self.processInput(self.m_Window)
 
