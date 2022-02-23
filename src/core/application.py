@@ -19,11 +19,17 @@ class Application:
     WIDTH  = 1000
     HEIGHT = 600
 
+    lastFrame: float = 0
+    deltaTime: float = 0
+
+    onMouseMove  = lambda _, w, x, y:None
+    onMouseClick = lambda _, w, b, s, x, y:None
+
     m_Program: core.shader.Shader
     m_Window: Any
     m_ActiveScene: core.scene.Scene
 
-    def __init__(self, title="Window") -> None:
+    def __init__(self, title="Window", init = lambda:None) -> None:
         if not glfw.init():
             raise Exception("glfw can not be initialized!")
         
@@ -49,22 +55,7 @@ class Application:
         self.m_Program = core.shader.Shader('res/basic.vert', 'res/basic.frag')
         self.m_Program.use()
 
-
-
-        # TODO Pack this stuff
-        self.m_ActiveScene = core.scene.Scene()
-        camera_entity = self.m_ActiveScene.makeEntity()
-        tr_ = camera_entity.addComponent(core.components.transform.Transform, *([0]*6))
-        camera_entity.addComponent(core.components.camera.Camera, 45.0, self.WIDTH / self.HEIGHT)
-
-        tr_.setPosition(0,   0, 5)
-        tr_.setRotation(0, -90, 0)
-
-        self.deltaTime = 0
-        self.lastFrame = 0
-
-        for i in range(500):
-            self.createBuffer()
+        init(self)
 
     def onWindowSizeChange(self, window, w, h):
         glViewport(0, 0, w, h)
@@ -82,11 +73,17 @@ class Application:
             
             break
 
-    def processMouse(self, button, state, x, y):
-        pass
+    def setOnMouseMove(self, __func):
+        self.onMouseMove = __func
+
+    def setOnMouseClick(self, __func):
+        self.onMouseClick = __func
+
+    def processMouse(self, window, button, state, x, y):
+        self.onMouseClick(window, button, state, x, y)
 
     def mouseMove(self, window, x, y):
-        pass
+        self.onMouseMove(window, x, y)
         # model = glm.mat4(1.0)
         # model = glm.rotate(model, glm.radians(x), glm.vec3(0.0, 1.0, 0.0))
         # self.m_Program.setMat4("model", model)
@@ -124,7 +121,7 @@ class Application:
         mesh_.buildMesh()
 
 
-    def run(self) -> None:
+    def run(self, update) -> None:
 
         while not glfw.window_should_close(self.m_Window):
             currentFrame = glfw.get_time()
@@ -134,6 +131,9 @@ class Application:
             glfw.set_window_title(self.m_Window, str(1.0 / self.deltaTime))
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+
+            update(self.deltaTime)
 
             self.processInput(self.m_Window)
 
