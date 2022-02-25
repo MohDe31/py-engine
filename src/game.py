@@ -6,7 +6,7 @@ import numpy as np
 import core.components.transform
 import core.application
 import core.time
-from core.primitives import cube
+from core.primitives import cube, line
 from neovec3D import NeuroVector3D
 
 class Game:
@@ -89,6 +89,8 @@ class Game:
         self.cameraTransform = tr_
 
         application.setProcessInputFunc(self.processInput)
+
+        _ = line(application.m_ActiveScene, [0, 5, 0], [0, 6, 0])
 
         self._p0      = cube(application.m_ActiveScene, [0 , 0, 0]).m_Position
         self._pret    = cube(application.m_ActiveScene, [5 , 0, 0] ).m_Position

@@ -15,12 +15,16 @@ class Mesh(core.components.component.Component):
     m_Vertices : np.ndarray
     m_Colors   : np.ndarray
 
-    def __init__(self, entity: core.entity.Entity) -> None:
+    m_Type     : GLuint
+
+    def __init__(self, entity: core.entity.Entity, meshType: GLuint = GL_TRIANGLES) -> None:
         super().__init__(entity)
 
         self.m_VBO = None
         self.m_VAO = None
         self.m_EBO = None
+
+        self.m_Type = meshType
 
     def buildMesh(self):
         if self.m_VBO == None:

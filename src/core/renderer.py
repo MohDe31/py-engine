@@ -23,6 +23,7 @@ class Renderer:
 
             break
 
+        #DRAW NORMAL MESHES
         mesh_objects = scene.m_Registry.getAllOfTypes(core.components.mesh.Mesh, core.components.transform.Transform)
 
         for entity in mesh_objects:
@@ -41,6 +42,8 @@ class Renderer:
 
             shader.setMat4("model", model)
             
-
-            glDrawElements(GL_TRIANGLES, 6*6, GL_UNSIGNED_INT, None)
+            if mesh.m_Type == GL_TRIANGLES:
+                glDrawElements(GL_TRIANGLES, 6*6, GL_UNSIGNED_INT, None)
+            elif mesh.m_Type == GL_LINES:
+                glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, None)
 
