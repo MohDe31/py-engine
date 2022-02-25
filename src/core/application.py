@@ -39,7 +39,6 @@ class Application:
 
         glfw.set_window_pos(self.m_Window, 0, 0)
 
-        # TODO Later
         glfw.make_context_current(self.m_Window)
         
         glViewport(0, 0, self.WIDTH, self.HEIGHT)
