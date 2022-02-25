@@ -1,9 +1,9 @@
 
 import glfw
 import glm
-import numpy as np
 
 import core.components.transform
+import core.components.camera
 import core.application
 import core.time
 from core.primitives import cube, line
@@ -99,6 +99,8 @@ class Game:
         self.m_Application.setProcessInputFunc(self.processInput)
 
         proie_OBJ = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj')
+        # proie_OBJ = self.m_Application.m_ActiveScene.makeEntity()
+        # proie_OBJ.addComponent(core.components.transform.Transform, *([0]*6))
         pret_OBJ  = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj')
 
         self._p0      = glm.vec3(0.0)
@@ -109,13 +111,17 @@ class Game:
 
         self._proie.x = 15
 
-        self.RES      = 4
+        self.RES      = 50
 
         self.n_p0     = NeuroVector3D.fromCartesianVector(self._p0.x,    self._p0.y,    self._p0.z,     self.RES)
         self.n_pret   = NeuroVector3D.fromCartesianVector(self._pret.x,  self._pret.y,  self._pret.z,   self.RES)
         self.n_proie  = NeuroVector3D.fromCartesianVector(self._proie.x, self._proie.y, self._proie.z,  self.RES)
 
-
+        objects = self.m_Application.m_ActiveScene.m_Registry.getAllOfType(core.components.camera.Camera)
+        camera  = [*objects.keys(),][0]
+        
+        self.camPosition = camera.getComponent(core.components.transform.Transform).m_Position
+        
         self._t = 0
 
     def update(self):
@@ -147,6 +153,9 @@ class Game:
 
         self._proie  += glm.vec3(0.0, core.time.Time.DELTA_TIME, core.time.Time.DELTA_TIME)
 
+        # self.camPosition.x = self._proie.x
+        # self.camPosition.y = self._proie.y
+        # self.camPosition.z = self._proie.z
 
         if self.frameCount % 100 == 0 or self._t:
             line(self.m_Application.m_ActiveScene, self.c_lastpos, [self._proie.x, self._proie.y, self._proie.z])
