@@ -48,7 +48,6 @@ class NeuroVector3D:
             theta = atan2(y, x)
             phi   = np.pi / 2 - atan2(sqrt(x*x+y*y), z)
 
-        print(phi, theta)
         return NeuroVector3D(rho=rho, theta=theta, phi=phi, resolution=resolution)
 
     # TODO TEST!

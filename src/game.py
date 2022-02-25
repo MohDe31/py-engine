@@ -8,11 +8,18 @@ import core.application
 import core.time
 from core.primitives import cube, line
 from neovec3D import NeuroVector3D
+from utils.objparser import ObjParser
+
 
 class Game:
 
+    m_Application: core.application.Application
+
+    frameCount: int = 0
+
     lastX: float = 0
     lastY: float = 0
+
     mouseInit: bool = False
 
     cameraTransform: core.components.transform.Transform
@@ -74,28 +81,33 @@ class Game:
 
     def initGame(self, application: core.application.Application):
         # TODO Pack this stuff
-        application.m_ActiveScene = core.scene.Scene()
-        camera_entity = application.m_ActiveScene.makeEntity()
+        self.m_Application = application
+        self.m_Application.m_ActiveScene = core.scene.Scene()
+        camera_entity = self.m_Application.m_ActiveScene.makeEntity()
         tr_ = camera_entity.addComponent(core.components.transform.Transform, *([0]*6))
-        camera_entity.addComponent(core.components.camera.Camera, 45.0, application.WIDTH / application.HEIGHT)
+        camera_entity.addComponent(core.components.camera.Camera, 45.0, self.m_Application.WIDTH / self.m_Application.HEIGHT)
 
-        glfw.set_input_mode(application.m_Window, glfw.CURSOR, glfw.CURSOR_DISABLED)
+        glfw.set_input_mode(self.m_Application.m_Window, glfw.CURSOR, glfw.CURSOR_DISABLED)
 
-        application.setOnMouseMove(self.onMouseMove)
+        self.m_Application.setOnMouseMove(self.onMouseMove)
 
         tr_.setPosition(0,   0, 5)
         tr_.setRotation(0, -90, 0)
 
         self.cameraTransform = tr_
 
-        application.setProcessInputFunc(self.processInput)
+        self.m_Application.setProcessInputFunc(self.processInput)
 
-        _ = line(application.m_ActiveScene, [0, 5, 0], [0, 6, 0])
+        proie_OBJ = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj')
+        pret_OBJ  = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj')
 
-        self._p0      = cube(application.m_ActiveScene, [0 , 0, 0]).m_Position
-        self._pret    = cube(application.m_ActiveScene, [5 , 0, 0] ).m_Position
-        self._proie   = cube(application.m_ActiveScene, [15, 0, 0] ).m_Position
+        self._p0      = glm.vec3(0.0)
+
+        self._proie = proie_OBJ.getComponent(core.components.transform.Transform).m_Position
+        self._pret  = pret_OBJ.getComponent(core.components.transform.Transform).m_Position
         self._lambda  = 0
+
+        self._proie.x = 15
 
         self.RES      = 4
 
@@ -103,18 +115,17 @@ class Game:
         self.n_pret   = NeuroVector3D.fromCartesianVector(self._pret.x,  self._pret.y,  self._pret.z,   self.RES)
         self.n_proie  = NeuroVector3D.fromCartesianVector(self._proie.x, self._proie.y, self._proie.z,  self.RES)
 
+
         self._t = 0
 
     def update(self):
-        """ VECTORIAL FUNCTIONS
-        rf  = (self._pret - self._p0) * (self._lambda - 1)
+        if self._t: return
 
-        rpp = (self._proie - self._pret) * self._lambda
+        if glm.distance(self._proie, self._pret) < .2:
+            self._t = 1
 
-        dt  = rpp + rf
-        
-        self._pret   += dt
-        """
+
+        self.frameCount += 1
 
         self.n_pret   = NeuroVector3D.fromCartesianVector(self._pret.x,  self._pret.y,  self._pret.z,   self.RES)
         self.n_proie  = NeuroVector3D.fromCartesianVector(self._proie.x, self._proie.y, self._proie.z,  self.RES)
@@ -125,14 +136,20 @@ class Game:
 
         dt  = rpp + rf
 
-        if self._t != 2:
-            # self.n_pret += dt
-            self._pret   += glm.vec3(*NeuroVector3D.extractCartesianParameters(dt))
-            # print(NeuroVector3D.extractCartesianParameters(dt))
-            # print(self._pret)
+        if self.frameCount == 1:
+            self.c_lastpos = [self._proie.x, self._proie.y, self._proie.z]
+            self.p_lastpos = [self._pret.x, self._pret.y, self._pret.z]
+
+        self._pret   += glm.vec3(*NeuroVector3D.extractCartesianParameters(dt))
 
         self._lambda += 0.0054 * (1 - self._lambda)
+
 
         self._proie  += glm.vec3(0.0, core.time.Time.DELTA_TIME, core.time.Time.DELTA_TIME)
 
 
+        if self.frameCount % 100 == 0 or self._t:
+            line(self.m_Application.m_ActiveScene, self.c_lastpos, [self._proie.x, self._proie.y, self._proie.z])
+            line(self.m_Application.m_ActiveScene, self.p_lastpos, [self._pret.x, self._pret.y, self._pret.z], [1, 0, 0])
+            self.c_lastpos = [self._proie.x, self._proie.y, self._proie.z]
+            self.p_lastpos = [self._pret.x, self._pret.y, self._pret.z]

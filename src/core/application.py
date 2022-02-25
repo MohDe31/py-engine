@@ -45,7 +45,7 @@ class Application:
         glViewport(0, 0, self.WIDTH, self.HEIGHT)
         glfw.set_window_size_callback(self.m_Window, self.onWindowSizeChange)
 
-        glClearColor(0.0, 0.1, 0.0, 1.0)
+        glClearColor(1, 1, 1, 1)
         glEnable(GL_DEPTH_TEST)
 
         glfw.set_cursor_pos_callback(self.m_Window, self.mouseMove)
