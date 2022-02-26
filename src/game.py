@@ -243,7 +243,7 @@ class Game:
         if self.lookAtTarget != None:
             self.cameraTransform.lookAt(self.lookAtTarget)
 
-        if self.frameCount % 60 == 0:
+        if self.frameCount % 60 == 0 or self._t:
             self.lines.append(line(self.m_Application.m_ActiveScene, self.c_lastpos, [self._proie.x, self._proie.y, self._proie.z]))
             self.lines.append(line(self.m_Application.m_ActiveScene, self.p_lastpos, [self._pret.x, self._pret.y, self._pret.z], [1, 0, 0]))
             self.c_lastpos = [self._proie.x, self._proie.y, self._proie.z]
