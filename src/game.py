@@ -1,7 +1,9 @@
 
+from math import acos, degrees
 from typing import List
 import glfw
 import glm
+import numpy as np
 
 import core.components.transform
 import core.components.camera
@@ -10,6 +12,8 @@ import core.time
 from core.primitives import line
 from neovec3D import NeuroVector3D
 from utils.objparser import ObjParser
+
+from array import array
 
 import imgui
 
@@ -26,6 +30,7 @@ class Game:
     cursor   : bool = True
 
     lines: List[object] = []
+    errors: List[float] = []
 
     cameraTransform: core.components.transform.Transform
 
@@ -113,30 +118,23 @@ class Game:
 
         self.m_Application.setProcessInputFunc(self.processInput)
 
+        self.RES       = 50
+
         # proie_OBJ = self.m_Application.m_ActiveScene.makeEntity()
         # proie_OBJ.addComponent(core.components.transform.Transform, *([0]*6))
         self.proie_OBJ = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj')
         self.pret_OBJ  = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj')
 
-        self._p0      = glm.vec3(0.0)
         self._proie   = self.proie_OBJ.getComponent(core.components.transform.Transform).m_Position
         self._pret    = self.pret_OBJ.getComponent(core.components.transform.Transform).m_Position
-        self._lambda  = 0
 
-        self._proie.x = 15
-
-        self.RES      = 50
-
-        self.n_p0     = NeuroVector3D.fromCartesianVector(self._p0.x,    self._p0.y,    self._p0.z,     self.RES)
-        self.n_pret   = NeuroVector3D.fromCartesianVector(self._pret.x,  self._pret.y,  self._pret.z,   self.RES)
-        self.n_proie  = NeuroVector3D.fromCartesianVector(self._proie.x, self._proie.y, self._proie.z,  self.RES)
-
-        self._t = 0
+        self.initScene()
 
     def initScene(self):
         for line in self.lines:
             self.m_Application.m_ActiveScene.m_Registry.removeEntity(line)
 
+        self.errors.clear()
         self.lines.clear()
         self.frameCount = 0
 
@@ -151,10 +149,6 @@ class Game:
         self._pret.y  = 0
         self._pret.z  = 0
 
-        self.n_p0     = NeuroVector3D.fromCartesianVector(self._p0.x,    self._p0.y,    self._p0.z,     self.RES)
-        self.n_pret   = NeuroVector3D.fromCartesianVector(self._pret.x,  self._pret.y,  self._pret.z,   self.RES)
-        self.n_proie  = NeuroVector3D.fromCartesianVector(self._proie.x, self._proie.y, self._proie.z,  self.RES)
-
         self._t = 0
 
     def initRandom(self):
@@ -167,12 +161,16 @@ class Game:
 
         if imgui.button("RANDOM"):
             self.initRandom()
-            
+
+        if len(self.errors):
+            imgui.plot_lines("a°", np.array(self.errors, dtype=np.float32), overlay_text=f'avg: {sum(self.errors)/len(self.errors)}', graph_size=(0, 80))
+        else:
+            imgui.plot_lines("a°", np.array([0], dtype=np.float32), overlay_text="avg: 0", graph_size=(0, 80))
 
         _, core.time.Time.GAME_SPEED = imgui.drag_float("Simulation Speed", core.time.Time.GAME_SPEED, 0.01, 0.0, 1.0)
         imgui.end()
 
-        imgui.show_test_window()
+        # imgui.show_test_window()
 
         if core.time.Time.GAME_SPEED == 0: return
         if self._t: return
@@ -183,12 +181,12 @@ class Game:
 
         self.frameCount += 1
 
-        self.n_pret   = NeuroVector3D.fromCartesianVector(self._pret.x,  self._pret.y,  self._pret.z,   self.RES)
-        self.n_proie  = NeuroVector3D.fromCartesianVector(self._proie.x, self._proie.y, self._proie.z,  self.RES)
+        rf  = self._pret - self._p0
+        rpp = self._proie - self._pret
 
-        rf  = (self.n_pret  - self.n_p0  ) * (self._lambda - 1)
+        rf  = NeuroVector3D.fromCartesianVector(*rf, self.RES) * (self._lambda - 1)
 
-        rpp = (self.n_proie - self.n_pret) *  self._lambda
+        rpp = NeuroVector3D.fromCartesianVector(*rpp, self.RES) *  self._lambda
 
         dt  = rpp + rf
 
@@ -196,7 +194,11 @@ class Game:
             self.c_lastpos = [self._proie.x, self._proie.y, self._proie.z]
             self.p_lastpos = [self._pret.x, self._pret.y, self._pret.z]
 
+
         self._pret   += glm.vec3(*NeuroVector3D.extractCartesianParameters(dt))
+
+        rf   = self._pret  - self._p0
+        rpp  = self._proie - self._pret
 
         self._lambda += core.time.Time.GAME_SPEED * 0.0054 * (1 - self._lambda)
 
@@ -210,5 +212,12 @@ class Game:
         if self.frameCount % 100 == 0 or self._t:
             self.lines.append(line(self.m_Application.m_ActiveScene, self.c_lastpos, [self._proie.x, self._proie.y, self._proie.z]))
             self.lines.append(line(self.m_Application.m_ActiveScene, self.p_lastpos, [self._pret.x, self._pret.y, self._pret.z], [1, 0, 0]))
+
             self.c_lastpos = [self._proie.x, self._proie.y, self._proie.z]
             self.p_lastpos = [self._pret.x, self._pret.y, self._pret.z]
+
+            v12  = glm.length(rf) * glm.length(rpp)
+            
+            cosa = glm.dot(rf, rpp) / v12
+
+            self.errors.append(degrees(acos(cosa if cosa <= 1 else 1)))
