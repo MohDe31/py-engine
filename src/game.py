@@ -96,7 +96,7 @@ class Game:
         yOffset *= sensitivity
 
         self.cameraTransform.rotate(yOffset, xOffset, 0)
-
+        
         if self.cameraTransform.m_Rotation.x > 89.0:
             self.cameraTransform.setPitch(89.0)
         if self.cameraTransform.m_Rotation.x < -89.0:
@@ -131,6 +131,8 @@ class Game:
         self._proie   = self.proie_OBJ.getComponent(core.components.transform.Transform).m_Position
         self._pret    = self.pret_OBJ.getComponent(core.components.transform.Transform).m_Position
 
+
+        self.lookAtTarget = None
         self.initScene()
 
     def initScene(self):
@@ -162,7 +164,21 @@ class Game:
     def update(self):
 
 
-        imgui.begin("Custom Window", True)
+        imgui.begin("Control Panel", True)
+
+        imgui.text("Camera lock rotation")
+        imgui.new_line()
+
+        imgui.same_line()
+        if imgui.button("Proie"):
+            self.lookAtTarget = self._proie
+        imgui.same_line()
+        if imgui.button("Predateur"):
+            self.lookAtTarget = self._pret
+        imgui.same_line()
+        if imgui.button("None"):
+            self.lookAtTarget = None
+
         
         _, self.selectedMovementMode = imgui.combo("Movement Mode", self.selectedMovementMode, ['Rectiligne', 'Hélicoïdale', 'Aléatoire'])
         _, self.RESOLUTION           = imgui.input_int("Resolution N", self.RESOLUTION)
@@ -184,7 +200,7 @@ class Game:
 
         imgui.end()
 
-        imgui.show_test_window()
+        # imgui.show_test_window()
 
         if core.time.Time.GAME_SPEED == 0: return
         if self._t: return
@@ -218,10 +234,8 @@ class Game:
 
         self._proie  += glm.vec3(0.0, core.time.Time.DELTA_TIME, core.time.Time.DELTA_TIME) * core.time.Time.GAME_SPEED
 
-
-        lookAtTarget = None
-        if lookAtTarget != None:
-            self.cameraTransform.lookAt(lookAtTarget)
+        if self.lookAtTarget != None:
+            self.cameraTransform.lookAt(self.lookAtTarget)
 
         if self.frameCount % 100 == 0 or self._t:
             self.lines.append(line(self.m_Application.m_ActiveScene, self.c_lastpos, [self._proie.x, self._proie.y, self._proie.z]))
