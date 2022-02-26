@@ -1,16 +1,20 @@
+import imgui
 import glfw
 
 from typing import Any
 from OpenGL.GL import *
 
+
 import core.components.transform
 import core.components.camera
 import core.components.mesh
+
 import core.renderer
 import core.shader
 import core.scene
 import core.time
 
+from imgui.integrations.glfw import GlfwRenderer
 
 class Application:
 
@@ -37,9 +41,12 @@ class Application:
             glfw.terminate()
             raise Exception("glfw window can not be created!")
 
+        
         glfw.set_window_pos(self.m_Window, 0, 0)
 
         glfw.make_context_current(self.m_Window)
+        
+        self.initImGUI()
         
         glViewport(0, 0, self.WIDTH, self.HEIGHT)
         glfw.set_window_size_callback(self.m_Window, self.onWindowSizeChange)
@@ -51,8 +58,13 @@ class Application:
 
         self.m_Program = core.shader.Shader('res/basic.vert', 'res/basic.frag')
         self.m_Program.use()
-
+        
         init(self)
+
+
+    def initImGUI(self):
+        imgui.create_context()
+        self.impl = GlfwRenderer(self.m_Window)
 
     def onWindowSizeChange(self, window, w, h):
         glViewport(0, 0, w, h)
@@ -79,6 +91,8 @@ class Application:
     def run(self, update = lambda:None) -> None:
 
         while not glfw.window_should_close(self.m_Window):
+            glfw.poll_events()
+            self.impl.process_inputs()
             currentFrame = glfw.get_time()
             core.time.Time.DELTA_TIME = currentFrame - self.lastFrame
             self.lastFrame = currentFrame
@@ -88,13 +102,20 @@ class Application:
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
 
+
+            imgui.new_frame()
+
             update()
+
+            imgui.render()
 
             self.processInput(self.m_Window)
 
             core.renderer.Renderer.render(self.m_ActiveScene, self.m_Program)
             
-            glfw.poll_events()
+        
+            self.impl.render(imgui.get_draw_data())
+
             glfw.swap_buffers(self.m_Window)
 
         glfw.terminate()

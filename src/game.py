@@ -10,6 +10,8 @@ from core.primitives import cube, line
 from neovec3D import NeuroVector3D
 from utils.objparser import ObjParser
 
+import imgui
+from imgui.integrations.glfw import GlfwRenderer
 
 class Game:
 
@@ -21,6 +23,7 @@ class Game:
     lastY: float = 0
 
     mouseInit: bool = False
+    cursor   : bool = True
 
     cameraTransform: core.components.transform.Transform
 
@@ -31,6 +34,11 @@ class Game:
 
     def processInput(self, window, activeScene):
         objs = activeScene.m_Registry.getAllOfTypes(core.components.camera.Camera, core.components.transform.Transform)
+        
+        if glfw.get_key(window, glfw.KEY_ESCAPE) and False:
+            self.cursor = not self.cursor
+            glfw.set_input_mode(self.m_Application.m_Window, glfw.CURSOR, glfw.CURSOR_NORMAL if self.cursor else glfw.CURSOR_HIDDEN)
+
         
         # move this code to core
         for entity in objs:
@@ -83,6 +91,7 @@ class Game:
         # TODO Pack this stuff
         self.m_Application = application
         self.m_Application.m_ActiveScene = core.scene.Scene()
+
         camera_entity = self.m_Application.m_ActiveScene.makeEntity()
         tr_ = camera_entity.addComponent(core.components.transform.Transform, *([0]*6))
         camera_entity.addComponent(core.components.camera.Camera, 45.0, self.m_Application.WIDTH / self.m_Application.HEIGHT)
@@ -121,11 +130,18 @@ class Game:
         camera  = [*objects.keys(),][0]
         
         self.camPosition = camera.getComponent(core.components.transform.Transform).m_Position
-        
+
         self._t = 0
 
     def update(self):
         if self._t: return
+
+        imgui.begin("Custom Window", True)
+
+        imgui.text("Hello")
+        imgui.end()
+
+        imgui.show_test_window()
 
         if glm.distance(self._proie, self._pret) < .2:
             self._t = 1
