@@ -68,5 +68,5 @@ class Renderer:
 
             shader.setMat4("model", model)
             
-            glDrawArrays(GL_TRIANGLES, 0, mesh.m_Vertices.size)
+            glDrawArrays(GL_TRIANGLES, 0, mesh.m_Vertices.size // 3)
 
