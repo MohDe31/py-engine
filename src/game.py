@@ -232,17 +232,19 @@ class Game:
         self._lambda += core.time.Time.GAME_SPEED * 0.0054 * (1 - self._lambda)
 
 
-        self._proie  += glm.vec3(0.0, core.time.Time.DELTA_TIME, core.time.Time.DELTA_TIME) * core.time.Time.GAME_SPEED
+        self._proie  += glm.vec3(0.0, core.time.Time.FIXED_DELTA_TIME, core.time.Time.FIXED_DELTA_TIME) * core.time.Time.GAME_SPEED
 
         if self.lookAtTarget != None:
             self.cameraTransform.lookAt(self.lookAtTarget)
 
-        if self.frameCount % 4 == 0 or self._t:
+        if self.frameCount % 60 == 0:
             self.lines.append(line(self.m_Application.m_ActiveScene, self.c_lastpos, [self._proie.x, self._proie.y, self._proie.z]))
             self.lines.append(line(self.m_Application.m_ActiveScene, self.p_lastpos, [self._pret.x, self._pret.y, self._pret.z], [1, 0, 0]))
-
             self.c_lastpos = [self._proie.x, self._proie.y, self._proie.z]
             self.p_lastpos = [self._pret.x, self._pret.y, self._pret.z]
+
+
+        if self.frameCount > 1 and self.frameCount % 1 == 0 or self._t:
 
             v12  = glm.length(rf) * glm.length(rpp)
             
