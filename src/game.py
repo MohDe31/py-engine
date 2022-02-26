@@ -1,4 +1,5 @@
 
+from typing import List
 import glfw
 import glm
 
@@ -6,12 +7,11 @@ import core.components.transform
 import core.components.camera
 import core.application
 import core.time
-from core.primitives import cube, line
+from core.primitives import line
 from neovec3D import NeuroVector3D
 from utils.objparser import ObjParser
 
 import imgui
-from imgui.integrations.glfw import GlfwRenderer
 
 class Game:
 
@@ -25,6 +25,8 @@ class Game:
     mouseInit: bool = False
     cursor   : bool = True
 
+    lines: List[object] = []
+
     cameraTransform: core.components.transform.Transform
 
 
@@ -33,13 +35,15 @@ class Game:
 
 
     def processInput(self, window, activeScene):
-        objs = activeScene.m_Registry.getAllOfTypes(core.components.camera.Camera, core.components.transform.Transform)
         
-        if glfw.get_key(window, glfw.KEY_ESCAPE) and False:
+        if glfw.get_key(window, glfw.KEY_ESCAPE) and imgui.is_key_pressed(256):
             self.cursor = not self.cursor
-            glfw.set_input_mode(self.m_Application.m_Window, glfw.CURSOR, glfw.CURSOR_NORMAL if self.cursor else glfw.CURSOR_HIDDEN)
+            glfw.set_input_mode(self.m_Application.m_Window, glfw.CURSOR, glfw.CURSOR_NORMAL if self.cursor else glfw.CURSOR_DISABLED)
+            self.mouseInit = False
 
-        
+
+        if self.cursor: return
+        objs = activeScene.m_Registry.getAllOfTypes(core.components.camera.Camera, core.components.transform.Transform)
         # move this code to core
         for entity in objs:
             tr: core.components.transform.Transform = objs[entity][core.components.transform.Transform]
@@ -63,6 +67,8 @@ class Game:
             break
 
     def onMouseMove(self, w, xpos, ypos):
+        if self.cursor: return
+
         if not self.mouseInit:
             self.lastX = xpos
             self.lastY = ypos
@@ -96,7 +102,7 @@ class Game:
         tr_ = camera_entity.addComponent(core.components.transform.Transform, *([0]*6))
         camera_entity.addComponent(core.components.camera.Camera, 45.0, self.m_Application.WIDTH / self.m_Application.HEIGHT)
 
-        glfw.set_input_mode(self.m_Application.m_Window, glfw.CURSOR, glfw.CURSOR_DISABLED)
+        # glfw.set_input_mode(self.m_Application.m_Window, glfw.CURSOR, glfw.CURSOR_DISABLED)
 
         self.m_Application.setOnMouseMove(self.onMouseMove)
 
@@ -107,15 +113,14 @@ class Game:
 
         self.m_Application.setProcessInputFunc(self.processInput)
 
-        proie_OBJ = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj')
         # proie_OBJ = self.m_Application.m_ActiveScene.makeEntity()
         # proie_OBJ.addComponent(core.components.transform.Transform, *([0]*6))
-        pret_OBJ  = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj')
+        self.proie_OBJ = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj')
+        self.pret_OBJ  = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj')
 
         self._p0      = glm.vec3(0.0)
-
-        self._proie = proie_OBJ.getComponent(core.components.transform.Transform).m_Position
-        self._pret  = pret_OBJ.getComponent(core.components.transform.Transform).m_Position
+        self._proie   = self.proie_OBJ.getComponent(core.components.transform.Transform).m_Position
+        self._pret    = self.pret_OBJ.getComponent(core.components.transform.Transform).m_Position
         self._lambda  = 0
 
         self._proie.x = 15
@@ -126,22 +131,51 @@ class Game:
         self.n_pret   = NeuroVector3D.fromCartesianVector(self._pret.x,  self._pret.y,  self._pret.z,   self.RES)
         self.n_proie  = NeuroVector3D.fromCartesianVector(self._proie.x, self._proie.y, self._proie.z,  self.RES)
 
-        objects = self.m_Application.m_ActiveScene.m_Registry.getAllOfType(core.components.camera.Camera)
-        camera  = [*objects.keys(),][0]
-        
-        self.camPosition = camera.getComponent(core.components.transform.Transform).m_Position
+        self._t = 0
+
+    def initScene(self):
+        for line in self.lines:
+            self.m_Application.m_ActiveScene.m_Registry.removeEntity(line)
+
+        self.lines.clear()
+        self.frameCount = 0
+
+        self._p0      = glm.vec3(0.0)
+        self._lambda  = 0
+
+        self._proie.x = 15
+        self._proie.y = 0
+        self._proie.z = 0
+
+        self._pret.x  = 0
+        self._pret.y  = 0
+        self._pret.z  = 0
+
+        self.n_p0     = NeuroVector3D.fromCartesianVector(self._p0.x,    self._p0.y,    self._p0.z,     self.RES)
+        self.n_pret   = NeuroVector3D.fromCartesianVector(self._pret.x,  self._pret.y,  self._pret.z,   self.RES)
+        self.n_proie  = NeuroVector3D.fromCartesianVector(self._proie.x, self._proie.y, self._proie.z,  self.RES)
 
         self._t = 0
 
+    def initRandom(self):
+        self.initScene()
+
     def update(self):
-        if self._t: return
+
 
         imgui.begin("Custom Window", True)
 
-        imgui.text("Hello")
+        if imgui.button("RANDOM"):
+            self.initRandom()
+            
+
+        _, core.time.Time.GAME_SPEED = imgui.drag_float("Simulation Speed", core.time.Time.GAME_SPEED, 0.01, 0.0, 1.0)
         imgui.end()
 
         imgui.show_test_window()
+
+        if core.time.Time.GAME_SPEED == 0: return
+        if self._t: return
 
         if glm.distance(self._proie, self._pret) < .2:
             self._t = 1
@@ -164,17 +198,17 @@ class Game:
 
         self._pret   += glm.vec3(*NeuroVector3D.extractCartesianParameters(dt))
 
-        self._lambda += 0.0054 * (1 - self._lambda)
+        self._lambda += core.time.Time.GAME_SPEED * 0.0054 * (1 - self._lambda)
 
 
-        self._proie  += glm.vec3(0.0, core.time.Time.DELTA_TIME, core.time.Time.DELTA_TIME)
+        self._proie  += glm.vec3(0.0, core.time.Time.DELTA_TIME, core.time.Time.DELTA_TIME) * core.time.Time.GAME_SPEED
 
         # self.camPosition.x = self._proie.x
         # self.camPosition.y = self._proie.y
         # self.camPosition.z = self._proie.z
 
         if self.frameCount % 100 == 0 or self._t:
-            line(self.m_Application.m_ActiveScene, self.c_lastpos, [self._proie.x, self._proie.y, self._proie.z])
-            line(self.m_Application.m_ActiveScene, self.p_lastpos, [self._pret.x, self._pret.y, self._pret.z], [1, 0, 0])
+            self.lines.append(line(self.m_Application.m_ActiveScene, self.c_lastpos, [self._proie.x, self._proie.y, self._proie.z]))
+            self.lines.append(line(self.m_Application.m_ActiveScene, self.p_lastpos, [self._pret.x, self._pret.y, self._pret.z], [1, 0, 0]))
             self.c_lastpos = [self._proie.x, self._proie.y, self._proie.z]
             self.p_lastpos = [self._pret.x, self._pret.y, self._pret.z]
