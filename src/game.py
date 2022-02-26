@@ -13,8 +13,6 @@ from core.primitives import line
 from neovec3D import NeuroVector3D
 from utils.objparser import ObjParser
 
-from array import array
-
 import imgui
 
 class Game:
