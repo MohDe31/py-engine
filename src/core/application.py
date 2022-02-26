@@ -34,6 +34,12 @@ class Application:
     def __init__(self, title="Window", init = lambda:None) -> None:
         if not glfw.init():
             raise Exception("glfw can not be initialized!")
+
+        glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
+        glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
+        glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
+
+        glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE)
         
         self.m_Window = glfw.create_window(self.WIDTH, self.HEIGHT, title, None, None)
 
