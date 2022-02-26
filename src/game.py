@@ -17,6 +17,12 @@ import imgui
 
 class Game:
 
+    movementMode = { 0: 'r', 1: 'h', 2: 'a' }
+    selectedMovementMode: int = 0
+    lockCamera: bool = False
+
+    RESOLUTION: int = 4
+
     m_Application: core.application.Application
 
     frameCount: int = 0
@@ -116,7 +122,6 @@ class Game:
 
         self.m_Application.setProcessInputFunc(self.processInput)
 
-        self.RES       = 50
 
         # proie_OBJ = self.m_Application.m_ActiveScene.makeEntity()
         # proie_OBJ.addComponent(core.components.transform.Transform, *([0]*6))
@@ -131,6 +136,8 @@ class Game:
     def initScene(self):
         for line in self.lines:
             self.m_Application.m_ActiveScene.m_Registry.removeEntity(line)
+
+        self.used_resolution       = self.RESOLUTION
 
         self.errors.clear()
         self.lines.clear()
@@ -156,9 +163,12 @@ class Game:
 
 
         imgui.begin("Custom Window", True)
+        
+        _, self.selectedMovementMode = imgui.combo("Movement Mode", self.selectedMovementMode, ['Rectiligne', 'Hélicoïdale', 'Aléatoire'])
+        _, self.RESOLUTION           = imgui.input_int("Resolution N", self.RESOLUTION)
 
-        if imgui.button("RANDOM"):
-            self.initRandom()
+        if self.RESOLUTION > 50:  self.RESOLUTION = 50
+        elif self.RESOLUTION < 1: self.RESOLUTION = 1
 
         if len(self.errors):
             imgui.plot_lines("a°", np.array(self.errors, dtype=np.float32), overlay_text=f'avg: {sum(self.errors)/len(self.errors)}', graph_size=(0, 80))
@@ -166,14 +176,20 @@ class Game:
             imgui.plot_lines("a°", np.array([0], dtype=np.float32), overlay_text="avg: 0", graph_size=(0, 80))
 
         _, core.time.Time.GAME_SPEED = imgui.drag_float("Simulation Speed", core.time.Time.GAME_SPEED, 0.01, 0.0, 1.0)
+
+
+
+        if imgui.button("Start new simulation"):
+            self.initRandom()
+
         imgui.end()
 
-        # imgui.show_test_window()
+        imgui.show_test_window()
 
         if core.time.Time.GAME_SPEED == 0: return
         if self._t: return
 
-        if glm.distance(self._proie, self._pret) < .2:
+        if glm.distance(self._proie, self._pret) < .3:
             self._t = 1
 
 
@@ -182,10 +198,9 @@ class Game:
         rf  = self._pret - self._p0
         rpp = self._proie - self._pret
 
-        rf  = NeuroVector3D.fromCartesianVector(*rf, self.RES) * (self._lambda - 1)
-
-        rpp = NeuroVector3D.fromCartesianVector(*rpp, self.RES) *  self._lambda
-
+        rf  = NeuroVector3D.fromCartesianVector(*rf, self.used_resolution ) * (self._lambda - 1)
+        rpp = NeuroVector3D.fromCartesianVector(*rpp, self.used_resolution) *  self._lambda
+        
         dt  = rpp + rf
 
         if self.frameCount == 1:
@@ -193,7 +208,7 @@ class Game:
             self.p_lastpos = [self._pret.x, self._pret.y, self._pret.z]
 
 
-        self._pret   += glm.vec3(*NeuroVector3D.extractCartesianParameters(dt))
+        self._pret += glm.vec3(*NeuroVector3D.extractCartesianParameters(dt))
 
         rf   = self._pret  - self._p0
         rpp  = self._proie - self._pret
@@ -203,9 +218,10 @@ class Game:
 
         self._proie  += glm.vec3(0.0, core.time.Time.DELTA_TIME, core.time.Time.DELTA_TIME) * core.time.Time.GAME_SPEED
 
-        # self.camPosition.x = self._proie.x
-        # self.camPosition.y = self._proie.y
-        # self.camPosition.z = self._proie.z
+
+        lookAtTarget = None
+        if lookAtTarget != None:
+            self.cameraTransform.lookAt(lookAtTarget)
 
         if self.frameCount % 100 == 0 or self._t:
             self.lines.append(line(self.m_Application.m_ActiveScene, self.c_lastpos, [self._proie.x, self._proie.y, self._proie.z]))

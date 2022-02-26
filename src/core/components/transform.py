@@ -1,4 +1,6 @@
-from math import cos, sin
+from math import atan2, cos, degrees, sin, acos, asin, sqrt
+
+import numpy as np
 
 import core.components.component
 import core.entity
@@ -53,6 +55,13 @@ class Transform(core.components.component.Component):
 
         self.updateVectors()
     
+    def lookAt(self, target: glm.vec3):
+        target = target - self.m_Position
+        self.m_Rotation.x = degrees(atan2(target.y, target.x))
+        self.m_Rotation.y = degrees(np.pi / 2 - atan2(sqrt(target.x**2+target.y**2), target.z))
+
+        self.updateVectors()
+
     def updateVectors(self):
         self.front = glm.vec3(
             cos(glm.radians(self.m_Rotation.y)) * cos(glm.radians(self.m_Rotation.x)),
