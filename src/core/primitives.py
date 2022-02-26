@@ -27,9 +27,9 @@ def line(scene: core.scene.Scene, start, end, color = [0, 0, 0]):
 
 
 def cube(scene: core.scene.Scene, position):
-    cube = scene.makeEntity()
-    mesh_: core.components.mesh.Mesh = cube.addComponent(core.components.mesh.Mesh)
-    tr_ = cube.addComponent(core.components.transform.Transform, *position, *([0]*3))
+    cube_ = scene.makeEntity()
+    mesh_: core.components.mesh.Mesh = cube_.addComponent(core.components.mesh.Mesh)
+    tr_ = cube_.addComponent(core.components.transform.Transform, *position, *([0]*3))
     mesh_.m_Triangles = np.array([ 0, 1, 2, 2, 3, 0,
                                    4, 5, 6, 6, 7, 4,
                                    4, 5, 1, 1, 0, 4,
@@ -57,4 +57,4 @@ def cube(scene: core.scene.Scene, position):
 
     mesh_.buildMesh()
 
-    return tr_
+    return cube_
