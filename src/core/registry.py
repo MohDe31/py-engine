@@ -46,7 +46,15 @@ class Registry:
                 return component
 
         return None
+        
+    def removeEntity(self, entity: object):
+        assert entity in self.m_Indices, "Unknown entity"
 
+        index: int = self.m_Indices[entity]
+
+        self.m_Indices.pop(entity)
+        self.m_Entities.pop(index)
+        self.m_Components[index].clear()
 
     def getAllOfTypes(self, *components: List[type[core.components.component.Component]]):
         res = {}
