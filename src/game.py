@@ -33,7 +33,8 @@ class Game:
     mouseInit: bool = False
     cursor   : bool = True
 
-    lines: List[object] = []
+    lines : List[object]= []
+    speed : List[float] = []
     errors: List[float] = []
 
     cameraTransform: core.components.transform.Transform
@@ -142,6 +143,7 @@ class Game:
         self.used_resolution       = self.RESOLUTION
 
         self.errors.clear()
+        self.speed.clear()
         self.lines.clear()
         self.frameCount = 0
 
@@ -188,8 +190,11 @@ class Game:
 
         if len(self.errors):
             imgui.plot_lines("a°", np.array(self.errors, dtype=np.float32), overlay_text=f'avg: {sum(self.errors)/len(self.errors)}', graph_size=(0, 80))
+            imgui.plot_lines("Speed", np.array(self.speed, dtype=np.float32), graph_size=(0, 80))
         else:
             imgui.plot_lines("a°", np.array([0], dtype=np.float32), overlay_text="avg: 0", graph_size=(0, 80))
+            imgui.plot_lines("Speed", np.array([0], dtype=np.float32), graph_size=(0, 80))
+
 
         _, core.time.Time.GAME_SPEED = imgui.drag_float("Simulation Speed", core.time.Time.GAME_SPEED, 0.01, 0.0, 1.0)
 
@@ -218,21 +223,22 @@ class Game:
         rpp = NeuroVector3D.fromCartesianVector(*rpp, self.used_resolution) *  self._lambda
         
         dt  = rpp + rf
+        dt_c= glm.vec3(*NeuroVector3D.extractCartesianParameters(dt))
 
         if self.frameCount == 1:
             self.c_lastpos = [self._proie.x, self._proie.y, self._proie.z]
             self.p_lastpos = [self._pret.x, self._pret.y, self._pret.z]
 
 
-        self._pret += glm.vec3(*NeuroVector3D.extractCartesianParameters(dt))
+        self.speed.append(glm.length(dt_c))
+        self._pret += dt_c
 
         rf   = self._pret  - self._p0
         rpp  = self._proie - self._pret
 
         self._lambda += core.time.Time.GAME_SPEED * 0.0054 * (1 - self._lambda)
 
-
-        self._proie  += glm.vec3(0.0, core.time.Time.FIXED_DELTA_TIME, core.time.Time.FIXED_DELTA_TIME) * core.time.Time.GAME_SPEED
+        self._proie  += glm.vec3(core.time.Time.FIXED_DELTA_TIME) * core.time.Time.GAME_SPEED
 
         if self.lookAtTarget != None:
             self.cameraTransform.lookAt(self.lookAtTarget)
