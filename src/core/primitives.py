@@ -26,7 +26,7 @@ def line(scene: core.scene.Scene, start, end, color = [0, 0, 0]):
     return line_
 
 
-def cube(scene: core.scene.Scene, position):
+def cube(scene: core.scene.Scene, position, global_scale=1):
     cube_ = scene.makeEntity()
     mesh_: core.components.mesh.Mesh = cube_.addComponent(core.components.mesh.Mesh)
     tr_ = cube_.addComponent(core.components.transform.Transform, *position, *([0]*3))
@@ -44,7 +44,7 @@ def cube(scene: core.scene.Scene, position):
                                  -0.5, -0.5, -0.5, 
                                  0.5, -0.5, -0.5, 
                                  0.5,  0.5, -0.5, 
-                                 -0.5,  0.5, -0.5], dtype=np.float32)
+                                 -0.5,  0.5, -0.5], dtype=np.float32)*global_scale
 
     mesh_.m_Colors = np.array([1.0, 0.0, 0.0,
                                0.0, 1.0, 0.0,
