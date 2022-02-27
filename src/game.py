@@ -1,5 +1,6 @@
 from simulation.simulation import Simulation
 from simulation.fixedpoint import FixedPoint
+from simulation.infinitpoint import InfinitPoint
 from simulation.imguiapp import ImGuiApp
 
 from typing import List
@@ -19,6 +20,7 @@ import glm
 class Game:
 
     movementMode = { 0: 'r', 1: 'h', 2: 'a' }
+    camouflageMode = {0: 'f', 1: 'i'}
     lockCamera: bool = False
 
     m_Application: core.application.Application
@@ -76,8 +78,12 @@ class Game:
         self.clearScene()
 
         mode = self.movementMode[self.imGuiApp.selectedMovementMode]
-
-        self.simulation = FixedPoint(self.imGuiApp.RESOLUTION, mode)
+        
+        if self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'f' :
+           self.simulation = FixedPoint(self.imGuiApp.RESOLUTION, mode)
+        elif self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'i' :
+           self.simulation = InfinitPoint(self.imGuiApp.RESOLUTION, mode)
+           
         self.onStartNew()
 
     def onStartNew(self):
