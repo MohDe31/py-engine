@@ -28,6 +28,8 @@ class Renderer:
         mesh_objects = scene.m_Registry.getAllOfTypes(core.components.mesh.Mesh, core.components.transform.Transform)
 
         for entity in mesh_objects:
+            if not entity.m_isActive: continue
+
             components: dict = mesh_objects[entity]
             
             mesh     : core.components.mesh.Mesh           = components[core.components.mesh.Mesh]
@@ -53,6 +55,7 @@ class Renderer:
         mesh_objects = scene.m_Registry.getAllOfTypes(core.components.cMesh.CMesh, core.components.transform.Transform)
 
         for entity in mesh_objects:
+            if not entity.m_isActive: continue
             components: dict = mesh_objects[entity]
             
             mesh     : core.components.cMesh.CMesh           = components[core.components.cMesh.CMesh]
