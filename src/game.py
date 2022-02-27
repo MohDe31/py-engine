@@ -9,7 +9,7 @@ import core.components.transform
 import core.components.camera
 import core.application
 import core.time
-from core.primitives import line
+from core.primitives import cube, line
 from neovec3D import NeuroVector3D
 from utils.objparser import ObjParser
 
@@ -152,7 +152,7 @@ class Game:
 
         self._proie.x = 15
         self._proie.y = 0
-        self._proie.z = 0
+        self._proie.z = -50
 
         self._pret.x  = 0
         self._pret.y  = 0
@@ -213,6 +213,7 @@ class Game:
         if glm.distance(self._proie, self._pret) < .3:
             self._t = 1
 
+        self._proie  += glm.vec3(core.time.Time.FIXED_DELTA_TIME) * core.time.Time.GAME_SPEED
 
         self.frameCount += 1
 
@@ -238,7 +239,6 @@ class Game:
 
         self._lambda += core.time.Time.GAME_SPEED * 0.0054 * (1 - self._lambda)
 
-        self._proie  += glm.vec3(core.time.Time.FIXED_DELTA_TIME) * core.time.Time.GAME_SPEED
 
         if self.lookAtTarget != None:
             self.cameraTransform.lookAt(self.lookAtTarget)
@@ -246,9 +246,12 @@ class Game:
         if self.frameCount % 60 == 0 or self._t:
             self.lines.append(line(self.m_Application.m_ActiveScene, self.c_lastpos, [self._proie.x, self._proie.y, self._proie.z]))
             self.lines.append(line(self.m_Application.m_ActiveScene, self.p_lastpos, [self._pret.x, self._pret.y, self._pret.z], [1, 0, 0]))
+            self.lines.append(cube(self.m_Application.m_ActiveScene, self.p_lastpos, .1))
+
             self.c_lastpos = [self._proie.x, self._proie.y, self._proie.z]
             self.p_lastpos = [self._pret.x, self._pret.y, self._pret.z]
 
+            self.lines.append(line(self.m_Application.m_ActiveScene, [self._p0.x, self._p0.y, self._p0.z], [self._proie.x, self._proie.y, self._proie.z], [1, 0, 1]))
 
         if self.frameCount > 1 and self.frameCount % 1 == 0 or self._t:
 
