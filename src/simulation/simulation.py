@@ -42,7 +42,7 @@ class Simulation:
         # Movement helicoidale 
         if self.type == 'h':
             self.z += 2*np.pi/1000
-            self.prey += glm.vec3(np.cos(self.z[self.iteration+2]), np.sin(self.z[self.iteration+2]), self.z[self.iteration+2])
+            self.prey = glm.vec3(np.cos(self.z[self.iteration+2]), np.sin(self.z[self.iteration+2]), self.z[self.iteration+2])
         if self.type == 'a' :
             self.prey += self.v
             if self.iteration % 10 == 0 :
