@@ -17,7 +17,7 @@ def line(scene: core.scene.Scene, start, end, color = [0, 0, 0]):
     tr_ = line_.addComponent(core.components.transform.Transform, *start, *([0]*3))
     mesh_.m_Triangles = np.array([ 0, 1 ], dtype=np.uint32)
 
-    mesh_.m_Vertices = np.array([0.0, 0.0, 0.0, end[0] - start[0], end[1] - start[1], end[2] - start[2]], dtype=np.float32)
+    mesh_.m_Vertices = np.array([0.0, 0.0, 0.0, *(end-start)], dtype=np.float32)
 
     mesh_.m_Colors = np.array([*color, *color], dtype=np.float32)
 
