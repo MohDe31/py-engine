@@ -13,10 +13,11 @@ class Simulation:
         
         if self.type == 'r' :
             self.prey  = glm.vec3(15, 0, -50)
+
         elif self.type == 'h' :
-            #make it bigger
             self.z = np.linspace(-2*np.pi, 2*np.pi, 1000)
             self.prey = glm.vec3(np.cos(self.z[0]), np.sin(self.z[0]), self.z[0])
+
         elif self.type == 'a' :
             self.prey = glm.vec3(15, 0, 0)
             self.v = glm.vec3(0, .01, .01)
@@ -41,8 +42,10 @@ class Simulation:
             self.prey += glm.vec3(0, core.time.Time.FIXED_DELTA_TIME, 0)
         # Movement helicoidale 
         if self.type == 'h':
-            self.z += 2*np.pi/1000
-            self.prey = glm.vec3(np.cos(self.z[self.iteration+2]), np.sin(self.z[self.iteration+2]), self.z[self.iteration+2])
+            self.prey.x = np.cos(self.z[self.iteration+2])
+            self.prey.y = np.sin(self.z[self.iteration+2])
+            self.prey.z = self.z[self.iteration+2]
+        # Movement Aleatoire
         if self.type == 'a' :
             self.prey += self.v
             if self.iteration % 10 == 0 :
