@@ -9,6 +9,8 @@ class FixedPoint(Simulation):
     def __init__(self, resolution: int, type_: str) -> None:
         super().__init__(resolution, type_)
 
+        self._lambda = 0
+
     def getReferenceVectors(self):
         rfp = self.pred - self.point
         rp  = self.prey - self.pred
