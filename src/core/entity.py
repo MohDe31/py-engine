@@ -3,7 +3,8 @@
 class Entity:
     
     def __init__(self, scene) -> None:
-        self.m_Scene = scene
+        self.m_Scene    = scene
+        self.m_isActive = True
 
 
     def addComponent(self, component, *args):
