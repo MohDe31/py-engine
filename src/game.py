@@ -100,24 +100,37 @@ class Game:
         self.imGuiApp.errors = self.simulation.errors
         self.imGuiApp.speed  = self.simulation.speed
 
+        if self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'f':
+            if self.simulation.iteration == 1:
+                self.c_lastpos = glm.vec3(*self.simulation.prey)
+                self.p_lastpos = glm.vec3(*self.simulation.pred)
 
-        if self.simulation.iteration == 1:
-            self.c_lastpos = glm.vec3(*self.simulation.prey)
-            self.p_lastpos = glm.vec3(*self.simulation.pred)
-
-            self.lines.append(cube(self.m_Application.m_ActiveScene, self.simulation.pred, .1))
+                self.lines.append(cube(self.m_Application.m_ActiveScene, self.simulation.pred, .1))
 
 
-        # Line drawing stuff!!
-        if self.simulation.iteration > 1 and self.simulation.iteration % 60 == 0:
-            self.lines.append(line(self.m_Application.m_ActiveScene, self.c_lastpos, self.simulation.prey))
-            self.lines.append(line(self.m_Application.m_ActiveScene, self.p_lastpos, self.simulation.pred, [1, 0, 0]))
-            self.lines.append(cube(self.m_Application.m_ActiveScene, self.simulation.pred, .1))
+            # Line drawing stuff!!
+            if self.simulation.iteration > 1 and self.simulation.iteration % 60 == 0:
+                self.lines.append(line(self.m_Application.m_ActiveScene, self.c_lastpos, self.simulation.prey))
+                self.lines.append(line(self.m_Application.m_ActiveScene, self.p_lastpos, self.simulation.pred, [1, 0, 0]))
+                self.lines.append(cube(self.m_Application.m_ActiveScene, self.simulation.pred, .1))
 
-            self.lines.append(line(self.m_Application.m_ActiveScene, self.simulation.point, self.simulation.prey, [1, 0, 1]))
+                self.lines.append(line(self.m_Application.m_ActiveScene, self.simulation.point, self.simulation.prey, [1, 0, 1]))
 
-            self.c_lastpos = glm.vec3(*self.simulation.prey)
-            self.p_lastpos = glm.vec3(*self.simulation.pred)
+                self.c_lastpos = glm.vec3(*self.simulation.prey)
+                self.p_lastpos = glm.vec3(*self.simulation.pred)
+        else:
+            if self.simulation.iteration == 1:
+                self.c_lastpos = glm.vec3(*self.simulation.prey)
+                self.p_lastpos = glm.vec3(*self.simulation.pred)
+
+            if self.simulation.iteration > 1 and self.simulation.iteration % 60 == 0:
+                self.lines.append(line(self.m_Application.m_ActiveScene, self.c_lastpos, self.simulation.prey))
+                self.lines.append(line(self.m_Application.m_ActiveScene, self.p_lastpos, self.simulation.pred))
+                self.lines.append(line(self.m_Application.m_ActiveScene, self.simulation.prey, self.simulation.pred, [1, 0, 0]))
+
+
+                self.c_lastpos = glm.vec3(*self.simulation.prey)
+                self.p_lastpos = glm.vec3(*self.simulation.pred)
 
 
         """
