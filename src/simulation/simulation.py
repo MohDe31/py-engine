@@ -11,8 +11,10 @@ class Simulation:
         self.resolution = resolution
         self.type  = type_
         
+        self.mv_vec = glm.normalize(glm.vec3(np.random.random() ,np.random.random(),np.random.random())) * 10 * core.time.Time.FIXED_DELTA_TIME
+
         if self.type == 'r' :
-            self.prey  = glm.vec3(15, 0, -50)
+            self.prey  = glm.vec3(np.random.random()*40,np.random.random()*40,np.random.random()*40)
 
         elif self.type == 'h' :
             self.prey = glm.vec3(np.cos(0), 0, np.sin(0))
@@ -38,7 +40,7 @@ class Simulation:
     def updatePreyPosition(self):
         # Movement rectiligne
         if self.type == 'r':
-            self.prey += glm.vec3(0, core.time.Time.FIXED_DELTA_TIME, 0)
+            self.prey += self.mv_vec#glm.vec3(0, core.time.Time.FIXED_DELTA_TIME, 0)
         # Movement helicoidale 
         if self.type == 'h':
             self.prey.x = 5 * np.cos(np.radians(self.iteration))

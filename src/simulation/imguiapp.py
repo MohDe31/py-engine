@@ -15,6 +15,9 @@ class ImGuiApp:
     errors: List[float] = []
     RESOLUTION: int     = 4
 
+    prey_trajectory: bool = True
+    pred_trajectory: bool = True
+
     def __init__(self) -> None:
         pass
 
@@ -23,7 +26,11 @@ class ImGuiApp:
 
     def render(self):
         imgui.begin("Control Panel", True)
+        #if imgui.tree_node("Trajectoire", imgui.TREE_NODE_DEFAULT_OPEN):
+        #    _, self.prey_trajectory = imgui.checkbox("Proie",     self.prey_trajectory)
+        #    _, self.pred_trajectory = imgui.checkbox("Predateur", self.pred_trajectory)
 
+        #    imgui.tree_pop()
         """
         imgui.text("Camera lock rotation")
         imgui.new_line()

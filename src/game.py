@@ -93,8 +93,8 @@ class Game:
 
     def update(self):
         self.imGuiApp.render()
-        if not self.simulation:return
         # imgui.show_test_window()
+        if not self.simulation:return
         if not self.simulation.run(): return
 
         self.imGuiApp.errors = self.simulation.errors
@@ -132,7 +132,7 @@ class Game:
                 self.c_lastpos = glm.vec3(*self.simulation.prey)
                 self.p_lastpos = glm.vec3(*self.simulation.pred)
 
-
+        
         """
         if core.time.Time.GAME_SPEED == 0: return
 
