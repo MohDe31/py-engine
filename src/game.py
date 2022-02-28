@@ -19,8 +19,8 @@ import glm
 
 class Game:
 
-    movementMode = { 0: 'r', 1: 'h', 2: 'a' }
-    camouflageMode = {0: 'f', 1: 'i'}
+    movementMode   = { 0: 'r', 1: 'h', 2: 'a' }
+    camouflageMode = { 0: 'f', 1: 'i' }
     lockCamera: bool = False
 
     m_Application: core.application.Application
@@ -95,7 +95,7 @@ class Game:
         self.imGuiApp.render()
         if not self.simulation:return
         # imgui.show_test_window()
-        self.simulation.run()
+        if not self.simulation.run(): return
 
         self.imGuiApp.errors = self.simulation.errors
         self.imGuiApp.speed  = self.simulation.speed
