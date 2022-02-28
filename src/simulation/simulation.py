@@ -15,8 +15,7 @@ class Simulation:
             self.prey  = glm.vec3(15, 0, -50)
 
         elif self.type == 'h' :
-            self.z = np.linspace(-2*np.pi, 2*np.pi, 1000)
-            self.prey = glm.vec3(np.cos(self.z[0]), np.sin(self.z[0]), self.z[0])
+            self.prey = glm.vec3(np.cos(0), 0, np.sin(0))
 
         elif self.type == 'a' :
             self.prey = glm.vec3(15, 0, 0)
@@ -42,9 +41,9 @@ class Simulation:
             self.prey += glm.vec3(0, core.time.Time.FIXED_DELTA_TIME, 0)
         # Movement helicoidale 
         if self.type == 'h':
-            self.prey.x = np.cos(self.z[self.iteration+2])
-            self.prey.y = np.sin(self.z[self.iteration+2])
-            self.prey.z = self.z[self.iteration+2]
+            self.prey.x = 5 * np.cos(np.radians(self.iteration))
+            self.prey.y = self.iteration * core.time.Time.FIXED_DELTA_TIME
+            self.prey.z = 5 * np.sin(np.radians(self.iteration))
         # Movement Aleatoire
         if self.type == 'a' :
             self.prey += self.v
