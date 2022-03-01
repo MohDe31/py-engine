@@ -62,7 +62,7 @@ class Application:
 
         glfw.set_cursor_pos_callback(self.m_Window, self.mouseMove)
 
-        self.m_Program = core.shader.Shader('res/basic.vert', 'res/basic.frag')
+        self.m_Program = core.shader.Shader.load_basic()
         self.m_Program.use()
         
         init(self)

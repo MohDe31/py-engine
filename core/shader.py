@@ -3,18 +3,71 @@ from OpenGL.GL import *
 
 import numpy as np
 
+
+BASIC_VERT = """
+#version 310 es
+precision highp float;
+
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aColor;
+
+out vec3 fColor;
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
+void main()
+{
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+    fColor = aColor;
+}
+"""
+
+BASIC_FRAG = """
+#version 310 es
+precision highp float;
+
+out vec4 FragColor;
+
+in vec3 fColor;
+
+void main()
+{
+    FragColor = vec4(fColor, 1.0f);
+} 
+"""
+
 class Shader:
     
     ID = None
 
-    def __init__(self, vertex_path, fragment_path) -> None:
-        vertexShader = glCreateShader(GL_VERTEX_SHADER)
+    @staticmethod
+    def load_basic():
+        shader = Shader()
 
+        shader.load(BASIC_VERT, BASIC_FRAG)
+
+        return shader
+
+    def from_file(vertex_path, fragment_path):
         with open(vertex_path) as f:
-            data = f.read()
-        
-        glShaderSource(vertexShader, data)
+            vert = f.read()
+
+        with open(fragment_path) as f:
+            frag = f.read()
+
+        shader = Shader()
+
+        shader.load(vert, frag)
+
+        return shader
+
+    def load(self, vert, frag):
+        vertexShader = glCreateShader(GL_VERTEX_SHADER)
+        glShaderSource(vertexShader, vert)
         glCompileShader(vertexShader)
+        
 
         success = glGetShaderiv(vertexShader, GL_COMPILE_STATUS)
 
@@ -22,12 +75,11 @@ class Shader:
             logs = glGetShaderInfoLog(vertexShader)
             assert False, f'[ERROR::SHADER::VERTEX::COMPILATION_FAILED]\n {logs}'
 
+
         fragmentShader = glCreateShader(GL_FRAGMENT_SHADER)
 
-        with open(fragment_path) as f:
-            data = f.read()
         
-        glShaderSource(fragmentShader, data)
+        glShaderSource(fragmentShader, frag)
         glCompileShader(fragmentShader)
 
         success = glGetShaderiv(fragmentShader, GL_COMPILE_STATUS)
@@ -51,7 +103,9 @@ class Shader:
 
         glDeleteShader(vertexShader)
         glDeleteShader(fragmentShader)
-
+    
+    def __init__(self) -> None:
+        pass
 
     def use(self):
         glUseProgram(self.ID)
