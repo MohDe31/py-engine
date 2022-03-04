@@ -22,7 +22,7 @@ class ObjParser:
                     matName = line.split()[1]
                 elif line.startswith("Kd "):
                     r, g, b = [*map(float,line[3:].split()),]
-                    matStore[matName] = [r, g, b]
+                    matStore[matName] = [r, g, b, 1.0]
 
         return matStore
 
