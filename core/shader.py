@@ -9,9 +9,9 @@ BASIC_VERT = """
 precision highp float;
 
 layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aColor;
+layout (location = 1) in vec4 aColor;
 
-out vec3 fColor;
+out vec4 fColor;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -30,11 +30,11 @@ precision highp float;
 
 out vec4 FragColor;
 
-in vec3 fColor;
+in vec4 fColor;
 
 void main()
 {
-    FragColor = vec4(fColor, 1.0f);
+    FragColor = fColor;
 } 
 """
 
