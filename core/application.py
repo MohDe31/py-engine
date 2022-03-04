@@ -58,8 +58,6 @@ class Application:
         glfw.set_window_size_callback(self.m_Window, self.onWindowSizeChange)
 
         glClearColor(1, 1, 1, 1)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE)
-        glEnable(GL_BLEND)
         glEnable(GL_DEPTH_TEST)
 
 
