@@ -11,7 +11,7 @@ import core.scene
 
 
 
-def line(scene: core.scene.Scene, start, end, color = [0, 0, 0]):
+def line(scene: core.scene.Scene, start, end, color = [0, 0, 0, 1]):
     line_ = scene.makeEntity()
     mesh_: core.components.mesh.Mesh = line_.addComponent(core.components.mesh.Mesh, GL_LINES)
     tr_ = line_.addComponent(core.components.transform.Transform, *start, *([0]*3))
