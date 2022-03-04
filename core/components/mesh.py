@@ -38,7 +38,7 @@ class Mesh(core.components.component.Component):
 
 
         vts = self.m_Vertices.reshape(self.m_Vertices.size // 3,3)
-        colors = self.m_Colors.reshape(self.m_Colors.size // 3,3)
+        colors = self.m_Colors.reshape(self.m_Colors.size  // 4,4)
         vertices = np.hstack((vts, colors))
         sx, sy = vertices.shape
 
@@ -53,9 +53,9 @@ class Mesh(core.components.component.Component):
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * self.m_Triangles.nbytes, self.m_Triangles, GL_STATIC_DRAW)
 
         # VERTICES
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * 4, ctypes.c_void_p(0))
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * 4, ctypes.c_void_p(0))
         glEnableVertexAttribArray(0)
 
         # COLOR
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * 4, ctypes.c_void_p(3 * 4))
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * 4, ctypes.c_void_p(4 * 4))
         glEnableVertexAttribArray(1)
