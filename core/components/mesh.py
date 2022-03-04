@@ -57,5 +57,5 @@ class Mesh(core.components.component.Component):
         glEnableVertexAttribArray(0)
 
         # COLOR
-        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * 4, ctypes.c_void_p(4 * 4))
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * 4, ctypes.c_void_p(4 * 3))
         glEnableVertexAttribArray(1)
