@@ -36,6 +36,18 @@ class Registry:
 
         return __comp
 
+    def linkComponent(self, entity: object, component: core.components.component.Component):
+        assert entity in self.m_Indices, "Unknown entity"
+
+        index = self.m_Indices[entity]
+        entityComponents = self.m_Components[index]
+
+        assert component not in entityComponents, "Entity already have this component"
+
+        entityComponents.append(component)
+        return component
+
+
     def getComponent(self, entity: object, type_: type[core.components.component.Component]):
         assert entity in self.m_Indices, "Unknown entity"
 
