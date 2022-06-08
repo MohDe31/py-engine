@@ -12,14 +12,19 @@ layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec4 aColor;
 
 out vec4 fColor;
+out vec4 fBlendColor;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+uniform vec4 blendColor;
+
 void main()
 {
     gl_Position = projection * view * model * vec4(aPos, 1.0);
+
+    fBlendColor = blendColor;
     fColor = aColor;
 }
 """
@@ -31,10 +36,16 @@ precision highp float;
 out vec4 FragColor;
 
 in vec4 fColor;
+in vec4 fBlendColor;
 
 void main()
 {
-    FragColor = fColor;
+    if(length(fBlendColor) > 0.0)
+    {
+        FragColor = fBlendColor;
+        return;
+    }
+    FragColor = fColor - fBlendColor;
 } 
 """
 
@@ -118,6 +129,9 @@ class Shader:
 
     def setFloat(self, name: str, value: float):
         glUniform1f(glGetUniformLocation(self.ID, name), value)
+
+    def setVec4(self, name: str, value: Any):
+        glUniform4f(glGetUniformLocation(self.ID, name), *value)
 
     def setMat4(self, name: str, value: Any):
         glUniformMatrix4fv(glGetUniformLocation(self.ID, name), 1, GL_FALSE, np.matrix(value).T)

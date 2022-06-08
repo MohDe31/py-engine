@@ -44,6 +44,7 @@ class Renderer:
             model = glm.rotate(model, transform.m_Rotation.z, glm.vec3(0.0, 0.0, 1.0))
 
             shader.setMat4("model", model)
+            shader.setVec4("blendColor", mesh.m_BlendColor)
             
             if mesh.m_Type == GL_TRIANGLES:
                 glDrawElements(GL_TRIANGLES, mesh.m_Triangles.size * 6, GL_UNSIGNED_INT, None)

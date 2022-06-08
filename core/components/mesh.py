@@ -4,6 +4,7 @@ import core.entity
 from OpenGL.GL import *
 import numpy as np
 
+import glm
 
 class Mesh(core.components.component.Component):
 
@@ -15,6 +16,8 @@ class Mesh(core.components.component.Component):
     m_Vertices : np.ndarray
     m_Colors   : np.ndarray
 
+    m_BlendColor: glm.vec4
+
     m_Type     : GLuint
 
     def __init__(self, entity: core.entity.Entity, meshType: GLuint = GL_TRIANGLES) -> None:
@@ -25,6 +28,7 @@ class Mesh(core.components.component.Component):
         self.m_EBO = None
 
         self.m_Type = meshType
+        self.m_BlendColor = glm.vec4(0.0)
 
     def buildMesh(self):
         if self.m_VBO == None:
