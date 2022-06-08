@@ -55,6 +55,8 @@ class Renderer:
         #DRAW CUSTOM MESHES
         mesh_objects = scene.m_Registry.getAllOfTypes(core.components.cMesh.CMesh, core.components.transform.Transform)
 
+        shader.setVec4("blendColor", glm.vec4(0.0))
+        
         for entity in mesh_objects:
             if not entity.m_isActive: continue
             components: dict = mesh_objects[entity]
