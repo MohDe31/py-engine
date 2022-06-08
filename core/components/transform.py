@@ -73,6 +73,13 @@ class Transform(core.components.component.Component):
         )
 
         self.front = glm.normalize(self.front)
+        self.updateDirectionalVectors()
 
+
+    def frontToRotation(self):
+        self.m_Rotation.y = degrees(atan2(self.front.z, self.front.x))
+        self.m_Rotation.x = degrees(np.pi / 2 - atan2(sqrt(self.front.x * self.front.x + self.front.z * self.front.z), self.front.y))
+        
+    def updateDirectionalVectors(self):
         self.right = glm.normalize(glm.cross(self.front, Transform.WORLD_UP))
         self.up    = glm.normalize(glm.cross(self.right, self.front))
