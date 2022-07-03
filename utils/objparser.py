@@ -41,11 +41,6 @@ class ObjParser:
 
                 elif line.startswith('f '):
                     i1, i2, i3 = [*map(lambda x:int(x)-1,line[2:].split()),]
-<<<<<<< HEAD
-
-=======
-                    
->>>>>>> 88560179ee1604e071b329b11d22d00da690f87f
                     triangles += [verts[i1*3]*size[0], verts[i1*3+1]*size[1], verts[i1*3+2]*size[2]]
                     triangles += [verts[i2*3]*size[0], verts[i2*3+1]*size[1], verts[i2*3+2]*size[2]]
                     triangles += [verts[i3*3]*size[0], verts[i3*3+1]*size[1], verts[i3*3+2]*size[2]]
