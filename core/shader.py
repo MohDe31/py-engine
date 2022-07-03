@@ -29,6 +29,10 @@ precision highp float;
 out vec4 FragColor;
 in vec4 fColor;
 in vec4 fBlendColor;
+<<<<<<< HEAD
+=======
+
+>>>>>>> 88560179ee1604e071b329b11d22d00da690f87f
 void main()
 {
     if(length(fBlendColor) > 0.0)
