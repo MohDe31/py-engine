@@ -88,3 +88,38 @@ def cube(scene: core.scene.Scene, position, color = [0, 0, 0, 1], global_scale=[
     mesh_.buildMesh()
 
     return cube_
+
+
+def cube2(scene: core.scene.Scene, position, color = [0, 0, 0, 1], global_scale=[1, 1, 1]):
+    cube_ = scene.makeEntity()
+    color2 = [.4, .4, .4, 1]
+    mesh_: core.components.mesh.Mesh = cube_.addComponent(core.components.mesh.Mesh)
+    cube_.addComponent(core.components.transform.Transform, *position, *([0]*3))
+    mesh_.m_Triangles = np.array([ 0, 1, 2, 2, 3, 0,
+                                   4, 5, 6, 6, 7, 4,
+                                   4, 5, 1, 1, 0, 4,
+                                   6, 7, 3, 3, 2, 6,
+                                   5, 6, 2, 2, 1, 5,
+                                   7, 4, 0, 0, 3, 7], dtype=np.uint32)
+
+    mesh_.m_Vertices = np.array([-0.5 * global_scale[0], -0.5 * global_scale[1], 0.5 *  global_scale[2],
+                                 0.5  * global_scale[0], -0.5 * global_scale[1], 0.5 *  global_scale[2], 
+                                 0.5  * global_scale[0],  0.5 * global_scale[1], 0.3 *  global_scale[2], 
+                                 -0.5 * global_scale[0],  0.5 * global_scale[1], 0.3 *  global_scale[2], 
+                                 -0.5 * global_scale[0], -0.5 * global_scale[1], -0.5 * global_scale[2], 
+                                 0.5  * global_scale[0], -0.5 * global_scale[1], -0.5 * global_scale[2], 
+                                 0.5  * global_scale[0],  0.5 * global_scale[1], -0.3 * global_scale[2], 
+                                 -0.5 * global_scale[0],  0.5 * global_scale[1], -0.3 * global_scale[2]], dtype=np.float32)
+
+    mesh_.m_Colors = np.array([*color2,
+                               *color2,
+                               *color,
+                               *color,
+                               *color2,
+                               *color2,
+                               *color,
+                               *color], dtype=np.float32)
+
+    mesh_.buildMesh()
+
+    return cube_

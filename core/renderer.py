@@ -44,6 +44,7 @@ class Renderer:
             model = glm.rotate(model, transform.m_Rotation.z, glm.vec3(0.0, 0.0, 1.0))
 
             shader.setMat4("model", model)
+            shader.setVec4("blendColor", mesh.m_BlendColor)
             
             if mesh.m_Type == GL_TRIANGLES:
                 glDrawElements(GL_TRIANGLES, mesh.m_Triangles.size * 6, GL_UNSIGNED_INT, None)
@@ -54,6 +55,8 @@ class Renderer:
         #DRAW CUSTOM MESHES
         mesh_objects = scene.m_Registry.getAllOfTypes(core.components.cMesh.CMesh, core.components.transform.Transform)
 
+        shader.setVec4("blendColor", glm.vec4(0.0))
+        
         for entity in mesh_objects:
             if not entity.m_isActive: continue
             components: dict = mesh_objects[entity]
@@ -72,4 +75,3 @@ class Renderer:
             shader.setMat4("model", model)
             
             glDrawArrays(GL_TRIANGLES, 0, mesh.m_Vertices.size // 3)
-

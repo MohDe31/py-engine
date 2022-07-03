@@ -4,6 +4,8 @@ import numpy as np
 
 from OpenGL.GL import *
 
+from core.shader import Shader
+
 class CMesh(core.components.component.Component):
 
     m_VBO: int
